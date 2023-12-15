@@ -1,0 +1,23 @@
+- name: Creates directory
+  file:
+    path: "{{ des_docker_compose_dir }}"
+    state: directory
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['monitoring-servers'] }}"
+
+- name: Copy Monitoring stack config files
+  synchronize:
+    src: templates/prometheus-grafana/
+    dest: "{{ des_docker_compose_dir }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['monitoring-servers'] }}"
+
+- name: Start Docker Compose services
+  docker_compose:
+    project_src: "{{des_docker_compose_dir}}"
+    state: present
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['monitoring-servers'] }}"
