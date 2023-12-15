@@ -1,0 +1,191 @@
+###########################################################################
+
+# install exporters on all servers
+- name: Creates directory if not exist for default exporters
+  file:
+    path: "{{ des_docker_compose_dir }}/docker-compose-exporters/default"
+    state: directory
+
+- name: Copy Monitoring stack config files for default exporters
+  synchronize:
+    src: templates/prometheus-grafana/docker-compose-exporters/default
+    dest: "{{ des_docker_compose_dir }}/docker-compose-exporters/default"
+
+- name: Start Docker Compose services for default exporters
+  docker_compose:
+    project_src: "{{des_docker_compose_dir}}/docker-compose-exporters/default"
+    state: present
+    files: docker-compose.exporters-default.yml
+
+###########################################################################
+
+# install UWSGI exporters on uwsgi-servers
+- name: Creates directory if not exist for uwsgi exporters
+  file:
+    path: "{{ des_docker_compose_dir }}/docker-compose-exporters/uwsgi"
+    state: directory
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['uwsgi-servers'] }}"
+
+- name: Copy Monitoring stack config files for uwsgi exporters
+  synchronize:
+    src: templates/prometheus-grafana/docker-compose-exporters/uwsgi
+    dest: "{{ des_docker_compose_dir }}/docker-compose-exporters/uwsgi"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['uwsgi-servers'] }}"
+
+- name: Start Docker Compose services for uwsgi exporters
+  docker_compose:
+    project_src: "{{des_docker_compose_dir}}/docker-compose-exporters/uwsgi"
+    state: present
+    files: docker-compose.exporters-uwsgi.yml
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['uwsgi-servers'] }}"
+
+############################################################################
+
+# install beats exporters on beats-servers
+- name: Creates directory if not exist for beats exporters
+  file:
+    path: "{{ des_docker_compose_dir }}/docker-compose-exporters/beats"
+    state: directory
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['beats-servers'] }}"
+
+- name: Copy Monitoring stack config files for beats exporters
+  synchronize:
+    src: templates/prometheus-grafana/docker-compose-exporters/beats
+    dest: "{{ des_docker_compose_dir }}/docker-compose-exporters/beats"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['beats-servers'] }}"
+
+- name: Start Docker Compose services for beats exporters
+  docker_compose:
+    project_src: "{{des_docker_compose_dir}}/docker-compose-exporters/beats"
+    state: present
+    files: docker-compose.exporters-beats.yml
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['beats-servers'] }}"
+  
+############################################################################
+
+# install  elasticsearch exporters on elasticsearch-servers
+- name: Creates directory if not exist for elasticsearch exporters 
+  file:
+    path: "{{ des_docker_compose_dir }}/docker-compose-exporters/elasticsearch"
+    state: directory
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['elasticsearch-servers'] }}"
+
+- name: Copy Monitoring stack config files for elasticsearch exporters
+  copy:
+    src: templates/prometheus-grafana/docker-compose-exporters/elasticsearch
+    dest: "{{ des_docker_compose_dir }}/docker-compose-exporters/elasticsearch"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['elasticsearch-servers'] }}"
+
+- name: Start Docker Compose services for elasticsearch exporters
+  docker_compose:
+    project_src: "{{des_docker_compose_dir}}/docker-compose-exporters/elasticsearch"
+    state: present
+    files: docker-compose.exporters-elasticsearch.yml
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['elasticsearch-servers'] }}"
+
+#############################################################################
+
+# install mysql exporters on mysql-servers
+- name: Creates directory if not exist for mysql exporters
+  file:
+    path: "{{ des_docker_compose_dir }}/docker-compose-exporters/mysql"
+    state: directory
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['mysql-servers'] }}"
+
+- name: Copy Monitoring stack config files for mysql exporters 
+  copy:
+    src: templates/prometheus-grafana/docker-compose-exporters/mysql
+    dest: "{{ des_docker_compose_dir }}/docker-compose-exporters/mysql"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['mysql-servers'] }}"
+
+- name: Start Docker Compose services for mysql exporters 
+  docker_compose:
+    project_src: "{{des_docker_compose_dir}}/docker-compose-exporters/mysql"
+    state: present
+    files: docker-compose.exporters-mysql.yml
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['mysql-servers'] }}"
+
+##############################################################################
+
+# install rabbitmq exporters on rabbitmq-servers 
+- name: Creates directory if not exist for rabbitmq exporters
+  file:
+    path: "{{ des_docker_compose_dir }}/docker-compose-exporters/rabbitmq"
+    state: directory
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['rabbitmq-servers'] }}"
+
+- name: Copy Monitoring stack config files  for rabbitmq exporters
+  copy:
+    src: templates/prometheus-grafana/docker-compose-exporters/rabbitmq
+    dest: "{{ des_docker_compose_dir }}/docker-compose-exporters/rabbitmq"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['rabbitmq-servers'] }}"
+
+- name: Start Docker Compose services
+  docker_compose:
+    project_src: "{{des_docker_compose_dir}}/docker-compose-exporters/rabbitmq"
+    state: present
+    files: docker-compose.exporters-rabbitmq.yml
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['rabbitmq-servers'] }}"
+
+##############################################################################
+
+# install redis exporters on redis-servers 
+- name: Creates directory if not exist for redis exporters
+  file:
+    path: "{{ des_docker_compose_dir }}/docker-compose-exporters/redis"
+    state: directory
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['redis-servers'] }}"
+
+- name: Copy Monitoring stack config files for redis exporters
+  copy:
+    src: templates/prometheus-grafana/docker-compose-exporters/redis
+    dest: "{{ des_docker_compose_dir }}/docker-compose-exporters/redis"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['redis-servers'] }}"
+
+- name: Start Docker Compose services for redis exporters
+  docker_compose:
+    project_src: "{{des_docker_compose_dir}}/docker-compose-exporters/redis"
+    state: present
+    files: docker-compose.exporters-redis.yml
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['redis-servers'] }}"
+
+
+
+
+
