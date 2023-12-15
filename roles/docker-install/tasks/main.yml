@@ -1,0 +1,10 @@
+---
+- include: update.yml
+- include: dependeny.yml
+- include: install-debian.yml
+  when: "{{ docker_os  == 'debian'}}"  
+- include: install-ubuntu.yml
+  when: "{{ docker_os  == 'ubuntu'}}"
+- include: install-centos.yml 
+  when: "{{ docker_os  == 'centos'}}"
+

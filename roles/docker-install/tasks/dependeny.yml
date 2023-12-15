@@ -1,0 +1,38 @@
+# roles/common/tasks/redhat.yml
+- name: Ensure git is present
+  yum:
+    name: git
+    state: present
+  when: "{{ docker_os  == 'centos'}}" 
+  
+- name: Ensure vim is present
+  yum:
+    name: vim
+    state: present
+  when: "{{ docker_os  == 'centos'}}" 
+
+- name: Ensure mc is present
+  yum:
+    name: mc
+    state: present
+  when: "{{ docker_os  == 'centos'}}" 
+
+- name: Ensure yumutils is present
+  yum:
+    name: yum-utils
+    state: present
+  when: "{{ docker_os  == 'centos'}}" 
+
+
+- name: Debian-Based | Update apt package index and install necessary packages
+  apt:
+    name:
+      - software-properties-common
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+    update_cache: yes
+  when: "{{ docker_os  == 'ubuntu'}} or {{ docker_os  == 'debian'}}" 
