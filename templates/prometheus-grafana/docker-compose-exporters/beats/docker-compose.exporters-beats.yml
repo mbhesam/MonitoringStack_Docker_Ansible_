@@ -1,0 +1,19 @@
+version: '2.1'
+
+services:
+
+  beats_exporter:
+    image: sepa/beats-exporter
+    command:
+      - '--port=${BEAT_PORT}'
+      - '--filter=disabled'
+      - '--log=info'
+    restart: always
+    ports:
+    - "5066:5066"
+
+
+
+  
+  
+

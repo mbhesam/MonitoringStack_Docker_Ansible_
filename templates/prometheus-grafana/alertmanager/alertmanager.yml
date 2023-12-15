@@ -1,0 +1,42 @@
+global:
+  resolve_timeout: 5m
+
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'telepush'
+  routes:
+  - match:
+      severity: critical
+    receiver: 'critical_telepush'
+  - match:
+      severity: warning
+    receiver: 'warning_telepush'
+
+receivers:
+
+- name: 'web.hook'
+  webhook_configs:
+  - url: 'http://127.0.0.1:5001/8efbfd'
+
+- name: 'telepush'
+  webhook_configs:
+          - url: 'https://telepush.dev/api/inlets/alertmanager/8efbfd'    # add your Telepush token here
+
+- name: 'critical_telepush'
+  webhook_configs:
+    - url: 'https://telepush.dev/api/inlets/alertmanager/54c3e9' # add the token for the critical receiver here
+
+- name: 'warning_telepush'
+  webhook_configs:
+    - url: 'https://telepush.dev/api/inlets/alertmanager/c844ed' # add the token for the warning receiver here
+#
+#inhibit_rules:
+#  - source_match:
+#      severity: 'critical'
+#    target_match:
+#      severity: 'warning'
+#    equal: ['alertname', 'dev', 'instance']

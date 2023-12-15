@@ -1,0 +1,1022 @@
+groups:
+- name: Resource
+  rules:
+  # - record:  test:test
+  #   expr: rate(django_http_responses_total_by_status_view_method_created{instance="api.my-pishvaz.com:80", job="Pishvaz", method="GET", status="200", view="album_detail_v2"}[20s])
+
+## High Memory usage
+  - alert: High Memory Usage
+    expr: 100 - ((node_memory_MemAvailable_bytes * 100) / node_memory_MemTotal_bytes) > 95
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+      summary: "High Memory Usage on  {{ $labels.instance }}. Current Value : {{ $value }} "
+      description: "Check htop and comunicate with infrastracture team "
+
+  - alert: High Memory Usage
+    expr: 100 - ((node_memory_MemAvailable_bytes * 100) / node_memory_MemTotal_bytes) < 95 > 90
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+      summary: "High Memory Usage on {{ $labels.instance }}. Current Value : {{ $value }}" 
+      description: "Check htop and comunicate with infrastracture team"
+
+
+## FileSystem usage
+
+  - alert: Filesystem Usage
+    expr: 100 - ((node_filesystem_avail_bytes{mountpoint="/",fstypeW!="rootfs"} * 100) / node_filesystem_size_bytes{mountpoint="/",fstype!="rootfs"}) > 95
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "Root FS Used % :  {{ $value }} {{ $labels.instance }}. Current Value : {{ $value }}"
+            description: "Check log files and comunicate with infrastracture team"
+
+  - alert: Filesystem Usage
+    expr: 100 - ((node_filesystem_avail_bytes{mountpoint="/",fstype!="rootfs"} * 100) / node_filesystem_size_bytes{mountpoint="/",fstype!="rootfs"}) < 95 > 90
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Root FS Used % : {{ $value }} {{ $labels.instance }}. Current Value : {{ $value }}"
+            description: "Check log files and comunicate with infrastracture team"            
+
+#CPU Usage  
+
+  - alert: High CPU Usage
+    expr: (sum by(instance) (irate(node_cpu_seconds_total{instance!="172.16.9.22:9100",mode!="idle"}[1m])) / on(instance) group_left sum by (instance)((irate(node_cpu_seconds_total[1m])))) * 100 > 95
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "High CPU Usage :  {{ $labels.instance }} {{ $value }}. {{ $labels.hostname }} : {{ $value }} " 
+            description: "Check htop and comunicate with infrastracture team"
+
+  - alert: High CPU Usage 
+    expr: (sum by(instance) (irate(node_cpu_seconds_total{instance!="172.16.9.22:9100",mode!="idle"}[1m])) / on(instance) group_left sum by (instance)((irate(node_cpu_seconds_total[1m])))) * 100 < 95 > 90
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "High CPU Usage :  {{ $labels.instance }} {{ $value }}. {{ $labels.hostname }} : {{ $value }}"
+            description: "Check htop and comunicate with infrastracture team"
+
+#### NGINX LOGS
+- name: NGINX 
+  rules:
+  - alert: NGINX Service Status
+    expr: nginx_up{hostname!~"Asia App Server 67|Asia Cache Server Half 173"} < 1 
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "NGINX of server {{ $labels.instance }} is DOWN"
+            description: "Check nginx service and kill its process if its necessary and restart service"
+
+  - alert: NGINX Service Status For APP Server 67
+    expr: nginx_up{hostname="Asia App Server 67"} < 1
+    for: 5m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "NGINX of server {{ $labels.instance }} is DOWN"
+            description: "Check nginx service and kill its process if its necessary and restart service"
+
+
+  - alert: Nginx 5xx Response
+    expr: sum by(domain) (rate(nginxlog_http_response_count_total{domain!="media-vip.my-pishvaz.com",status=~"5.."}[30s])) > 15
+    for: 5m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "number of 5xx response is high in domain of {{$labels.domain}}. rate of Count of 5xx is {{ $value }}"
+            description: "Check log files of nginx cache servers and ELK stack pipline"
+
+
+  - alert: Nginx 5xx Response musicfa
+    expr: ( sum by(domain) (nginxlog_http_response_count_total{domain="media-vip.my-pishvaz.com",app_name=~"musicfa",status=~"5.."}) / sum by(domain) (nginxlog_http_response_count_total{domain="media-vip.my-pishvaz.com",app_name=~"musicfa"}) ) * 100 > 0.1
+    for: 5m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: " one 5xx from 1000 response  MusicFa"
+            description: "make sure every things is ok about cache server nginx and media provider project in musicfa website"
+
+
+  - alert: Nginx 5xx Response musicdel
+    expr: ( sum by(domain) (nginxlog_http_response_count_total{domain="media-vip.my-pishvaz.com",app_name=~"musicdel",status=~"5.."}) / sum by(domain) (nginxlog_http_response_count_total{domain="media-vip.my-pishvaz.com",app_name=~"musicdel"}) ) * 100 > 0.1
+    for: 5m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: " one 5xx from 1000 response Musicdel"
+            description: "make sure every things is ok about cache server nginx and media provider project in musicdel website "
+
+
+  - alert: Nginx 5xx Response mahanmusic
+    expr: ( sum by(domain) (nginxlog_http_response_count_total{domain="media-vip.my-pishvaz.com",app_name=~"mahanmusic",status=~"5.."}) / sum by(domain) (nginxlog_http_response_count_total{domain="media-vip.my-pishvaz.com",app_name=~"mahanmusic"}) ) * 100 > 0.1
+    for: 5m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "one 5xx from 1000 response Mahanmusic"
+            description: "make sure every things is ok about cache server nginx and media provider project in Mahanmusic website"
+
+
+  - alert: Nginx 5xx Response dibamusic
+    expr: ( sum by(domain) (nginxlog_http_response_count_total{domain="media-vip.my-pishvaz.com",app_name=~"dibamusic",status=~"5.."}) / sum by(domain) (nginxlog_http_response_count_total{domain="media-vip.my-pishvaz.com",app_name=~"dibamusic"}) ) * 100 > 0.1
+    for: 5m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: " one 5xx from 1000 response dibamusic"
+            description: "make sure every things is ok about cache server nginx and media provider project in dibamusic website"
+
+  - alert: Nginx 5xx Response musico
+    expr: ( sum by(domain) (nginxlog_http_response_count_total{domain="media-vip.my-pishvaz.com",app_name=~"musico",status=~"5.."}) / sum by(domain) (nginxlog_http_response_count_total{domain="media-vip.my-pishvaz.com",app_name=~"musico"}) ) * 100 > 0.1
+    for: 5m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: " one 5xx from 1000 response musico"
+            description: "make sure every things is ok about cache server nginx and media provider project in musico website"
+
+  - alert: Nginx 5xx Response musicsweb
+    expr: ( sum by(domain) (nginxlog_http_response_count_total{domain="media-vip.my-pishvaz.com",app_name=~"musicsweb",status=~"5.."}) / sum by(domain) (nginxlog_http_response_count_total{domain="media-vip.my-pishvaz.com",app_name=~"musicsweb"}) ) * 100 > 0.1
+    for: 5m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: " one 5xx from 1000 response Musicsweb"
+            description: "make sure every things is ok about cache server nginx and media provider project in musicsweb website"
+
+  - alert: Nginx 5xx Response sevilmusic
+    expr: ( sum by(domain) (nginxlog_http_response_count_total{domain="media-vip.my-pishvaz.com",app_name=~"sevilmusic",status=~"5.."}) / sum by(domain) (nginxlog_http_response_count_total{domain="media-vip.my-pishvaz.com",app_name=~"sevilmusic"}) ) * 100 > 0.1
+    for: 5m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: " one 5xx from 1000 response sevilmusic"
+            description: "make sure every things is ok about cache server nginx and media provider project in sevilmusic website"
+
+  - alert: Nginx 5xx Response ahangchin
+    expr: ( sum by(domain) (nginxlog_http_response_count_total{domain="media-vip.my-pishvaz.com",app_name=~"ahangchin",status=~"5.."}) / sum by(domain) (nginxlog_http_response_count_total{domain="media-vip.my-pishvaz.com",app_name="ahangchin"}) ) * 100 > 0.1
+    for: 5m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: " one 5xx from 1000 response ahangchin"
+            description: "make sure every things is ok about cache server nginx and media provider project in ahangchin website"
+
+  - alert: Nginx 5xx Response upmusics
+    expr: ( sum by(domain) (nginxlog_http_response_count_total{domain="media-vip.my-pishvaz.com",app_name=~"upmusics",status=~"5.."}) / sum by(domain) (nginxlog_http_response_count_total{domain="media-vip.my-pishvaz.com",app_name=~"upmusics"}) ) * 100 > 0.1
+    for: 5m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: " one 5xx from 1000 response upmusics"
+            description: "make sure every things is ok about cache server nginx and media provider project in upmusics website"
+
+  - alert: Nginx 5xx Response Bami
+    expr: ( sum by(domain) (nginxlog_http_response_count_total{domain="bami.vasapi.click",status=~"5.."}) / sum by(domain) (nginxlog_http_response_count_total{domain="bami.vasapi.click"}) ) * 100 > 0.1
+    for: 5m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: " one 5xx from 1000 response in Bami nginx"
+            description: "make sure every things is ok about cache server nginx and media provider project in Bami website"
+
+
+#### systemd services
+- name: systemdServices 
+  rules:
+  - alert: Service Down
+    expr: node_systemd_unit_state{name!~"pishvaz-frontend-production@.*1.*.service",state="active"} < 1 
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "services of {{ $labels.name }} from server {{ $labels.instance }} failed more than 1 minute"
+            description: "check application custome systemd service. you can see syslog for errors."
+
+- name: rabbitmq  
+  rules:
+  - alert: RabbitMq node down
+    expr: 'sum(rabbitmq_build_info) < 1'
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "rabbitmq of server {{ $labels.instance }} is DOWN"
+            description: "rabbitmq service problem check server of  {{ $labels.hostname }}"
+
+  - alert: RabbitMq memory high
+    expr: 'rabbitmq_process_resident_memory_bytes / rabbitmq_resident_memory_limit_bytes * 100 > 90'
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "A node of {{ $labels.instance }} use {{ $value }} of allocated RAM"
+            description: "check htop of server {{ $labels.hostname }} "
+  
+  - alert: RabbitMq file discriptor usage
+    expr: 'rabbitmq_process_open_fds / rabbitmq_process_max_fds * 100 > 90'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "A node of {{ $labels.instance }} use {{ $value }} of file descriptors"
+            description: "Increase the maximum file descriptor limit. you can modify the fs.file-max parameter in the /etc/sysctl.conf file"
+
+  - alert: RabbitMq too many unack messages
+    expr: "sum(rabbitmq_queue_messages_unacked) BY (queue) > 100 "
+    for: 5m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Too many unacknowledged messages it is  {{ $value }}"
+            description: "Possible causes include slow consumer processing, network issues, or resource limitations. Check if there are any consumers or processes that are not handling messages efficiently or if there are any network connectivity problems impacting message acknowledgment"
+
+  - alert: RabbitMq messages stuck 
+    expr: 'rabbitmq_queue_messages{queue=~"otp-messages|celery",vhost=~"media_logger|otp|msg_gateway"} > 20'
+    for: 5m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Too many messages stucked in {{ $labels.queue }}. total messages count is {{ $value }}"
+            description: "Stuck messages can indicate issues with consumers, network connectivity, or other factors"
+
+  - alert: RabbitMq otp messages queues stuck
+    expr: 'sum(rabbitmq_queue_messages{queue=~"otp-messages|celery",vhost=~"media_logger|otp|msg_gateway"}) BY (queue,vhost) > 10'
+    for: 7m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "Too many messages stucked in {{ $labels.queue }}. total messages count is {{ $value }}"
+            description: "Stuck messages can indicate issues with consumers, network connectivity, or other factors"
+
+
+
+  - alert: RabbitMq too many connections
+    expr: 'rabbitmq_connections > 2000'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "The total connections of a node is {{ $value }}"
+            description: "you have to scale rabbitmq node"
+
+  - alert: Rabbitmq no queue consumers
+    expr: 'rabbitmq_queue_consumers{queue!~".test.|device_event_logger|device_event_logger|vas_payment",vhost!~".*test.*|analytics"} < 1'
+    for: 5m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: " A queue has no consumer on: queue={{ $labels.queue }} , vhost={{ $labels.vhost }}"
+            description: "Troubleshoot consumer applications: If the queues with no consumers are expected to have consumers, investigate the consumer applications responsible for consuming messages from those queues"
+
+#  - alert: Rabbitmq unroutable messages
+#    expr: 'increase(rabbitmq_channel_messages_unroutable_returned_total[1m]) > 0 or increase(rabbitmq_channel_messages_unroutable_dropped_total[1m]) > 0'
+#    for: 1m
+#    labels:
+#      severity: "warning"
+#    annotations:
+#            summary: "A queue of server has {{ $value }} unroutable messages on {{ $labels.channel }} in vhost {{ $labels.vhost }} "
+#            description: "! rabbitmq of {{ $labels.hostname }}"
+
+- name: ElasticSearch  
+  rules: 
+  - alert: Elasticsearch Heap Usage Too High
+    expr: '(elasticsearch_jvm_memory_used_bytes{area="heap"} / elasticsearch_jvm_memory_max_bytes{area="heap"}) * 100 > 97'
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "The heap usage is {{ $value }} on server {{ $labels.instance }}"
+            description: "JVM application need resource or check why elastic using memory so much"
+  
+  - alert: Elasticsearch Heap Usage warning
+    expr: '(elasticsearch_jvm_memory_used_bytes{area="heap"} / elasticsearch_jvm_memory_max_bytes{area="heap"}) * 100 < 97 > 93'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "The heap usage is {{ $value }} on server {{ $labels.instance }}"
+            description: "JVM application need resource or check why elastic using memory so much"
+
+  - alert:   Elasticsearch Cluster Red
+    expr: 'max(elasticsearch_cluster_health_status{color="red"}) == 1'
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: " Elastic Cluster Red status"
+            description: "! elasticsearch RED"  
+
+  - alert:   Elasticsearch Cluster Yellow
+    expr: 'max(elasticsearch_cluster_health_status{color="yellow"}) == 1'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: " Elastic Cluster yellow status"
+            description: "! elasticsearch YELLOW"  
+    
+  - alert:  Elasticsearch Healthy node
+    expr: 'max(elasticsearch_cluster_health_number_of_nodes) < 5'
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: " number of health nodes is less than 5"
+            description: "Please check nodes cluster"
+
+  - alert:   Elasticsearch relocating shards too long
+    expr: 'max(elasticsearch_cluster_health_relocating_shards) > 0'
+    for: 30m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: " Elasticsearch has been relocating shards for 30 min"
+
+  - alert:    Elasticsearch initializing shards too long
+    expr: 'max(elasticsearch_cluster_health_relocating_shards) > 0'
+    for: 30m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Elasticsearch has been initializing shards for 30 min"
+
+  - alert:    Elasticsearch unassigned shards
+    expr: 'max(elasticsearch_cluster_health_unassigned_shards) > 0'
+    for: 30m 
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Elasticsearch has unassigned shards"
+            description: "Check cluster health. Use the Cluster State API (GET _cluster/state). Elasticsearch provides various shard allocation settings that can be adjusted to control how shards are assigned and distributed across the cluster. For example, you can modify the cluster.routing.allocation.enable setting to control whether shard allocation is allowed or not"
+
+  - alert:  Elasticsearch pending tasks
+    expr: 'max(elasticsearch_cluster_health_number_of_pending_tasks) > 0'
+    for: 15m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Elasticsearch has pending tasks for 15 minute"
+            description: "Use the Cluster State API (GET _cluster/state). Adjust Elasticsearch settings to optimize performance and handle pending tasks more effectively. For example, you can modify the thread_pool.bulk.queue_size and thread_pool.search.queue_size settings to control the size of the task queues for bulk indexing and search operations, respectively. Fine-tuning these settings can help prevent task backlogs"
+
+  - alert:  Elasticsearch no new document
+    expr:  'increase(elasticsearch_indices_indexing_index_total{es_data_node="true"}[10m]) < 1'
+    for: 10m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "Elasticsearch has no new document for 10 minute"
+            description: "check connectivity of ElasticSearch to applications "
+
+- name: Redis 
+  rules: 
+  - alert:  Redis Down
+    expr:  'redis_up == 0'
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "Redis instance {{ $labels.instance }} is DOWN"
+            description: "check redis server of  {{$labels.hostname}}"
+
+  - alert:  Redis out of system memory
+    expr:  'redis_memory_used_bytes / redis_total_system_memory_bytes * 100 > 95'
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "Redis instance {{ $labels.instance }} is out of system memory"
+            description: "check for unnormal connection count and scale node resource"
+
+  - alert:  Redis too many connections
+    expr:  'redis_connected_clients > 800'
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Redis instance {{ $labels.instance }} has {{ $value }} live connected clients"
+            description: "count of clients is more than usual"
+
+- name: Filebeat  
+  rules: 
+  - alert:  Filebeat Down
+    expr:  'filebeat_up < 1'
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "filebeat instance {{ $labels.instance }}  is Down"
+            description: "! Filebeat {{ $labels.hostname }}"
+
+- name: Logstash  
+  rules: 
+  - alert:  Logstash Down
+    expr:  'logstash_up < 1'
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "logstash instance {{ $labels.instance }}  is Down"
+            description: "! Logstash {{ $labels.hostname }}"
+
+#### ssl expiry
+
+- name: ssl expiry time
+  rules:
+  - alert:  ssl expiry
+    expr:  '((probe_ssl_earliest_cert_expiry - time()) / 86400) < 10'
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "ssl for site {{ $labels.instance }}  is nearly to excpired "
+            description: "! time remaining {{$value}} days"
+
+  - alert:  ssl expiry
+    expr:  '((probe_ssl_earliest_cert_expiry - time()) / 86400)  < 20 > 10'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "ssl for site {{ $labels.instance }}  is nearly to excpired "
+            description: "! time remaining {{$value}} days"
+
+#### http duration time 
+
+  - alert:  http duration for ritm site
+    expr:  'probe_http_duration_seconds{instance=~"https://play.ritm.center/music"} > 13  '
+    for: 2m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "http response duration time for site {{ $labels.instance }} is {{$value}}"
+            description: "check application instance"
+
+  - alert:  http duration for pishvaz site
+    expr:  'probe_http_duration_seconds{instance=~"https://my-pishvaz.com/smart"} > 15  '
+    for: 2m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "http response duration time for site {{ $labels.instance }} is {{$value}}"
+            description: "check application instance"
+
+  - alert:  http duration for pishvaz backend site
+    expr:  'probe_http_duration_seconds{instance=~"https://media.my-pishvaz.com//avatars/song/masih-arash-booye-shomal-ft-parvaz-homay.jpg"} > 12  '
+    for: 2m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "http response duration time for site {{ $labels.instance }} is {{$value}}"
+            description: "check application instance"
+
+  - alert:  http duration for pishvaz backend site
+    expr:  'probe_http_duration_seconds{instance=~"https://api.my-pishvaz.com/api/config/"} > 12 '
+    for: 2m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "http response duration time for site {{ $labels.instance }} is {{$value}}"
+            description: "check application instance"
+
+  - alert:  http duration for iframe remote-music site
+    expr:  'probe_http_duration_seconds{instance=~"https://music-remote.my-pishvaz.com"} > 12 '
+    for: 2m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "http response duration time for site {{ $labels.instance }} is {{$value}}"
+            description: "check application instance"
+
+#### sites down 
+- name:  Site may be DOWN
+  rules:
+  - alert:  site is Down 
+    expr:  ' probe_success{instance!="https://media-vip.my-pishvaz.com"} < 1 '
+    for: 5m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "!!! Status Response of {{ $labels.instance }} is NOT 200 !!!"
+            description: "!  site {{ $labels.instance }} is DOWN"
+
+
+#### UWSGI Down
+- name:  UWSGI
+  rules:
+  - alert:  UWSGI is Down
+    expr:  ' uwsgi_up < 1 '
+    for: 2m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "!!! uwsgi of server {{$labels.hostname}} is DOWN!!!"
+            description: "uwsgi {{ $labels.app_name }} is DOWN. check uwsgi logs. unlinks symbolic links or maybe configuration of uwsgi is not correct and you have to delete its sockets"
+
+
+  - alert: uwsgi_request_per_app_count
+    expr:  '(sum by(app_name) (rate(uwsgi_worker_requests_total{app_name="Pishvaz ISP Detector"}[2m])) < 0.08 or (sum by(app_name) (rate(uwsgi_worker_requests_total{app_name="ISP Detector 1"}[1m])) or sum by(app_name) (rate(uwsgi_worker_requests_total{app_name="ISP Detector 2"}[1m])) or sum by(app_name) (rate(uwsgi_worker_requests_total{app_name="Asia Pishvaz"}[1m]))) < 8 or (sum by(app_name) (rate(uwsgi_worker_requests_total{app_name="Media Provider 1"}[1m])) or sum by(app_name) (rate(uwsgi_worker_requests_total{app_name="Media Provider 2"}[1m]))) < 15) and ON() hour() > 5 < 21'
+    for: 2m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "uwsgi request per app count of {{ $labels.app_name }} is {{$value}}"
+            description: "huge request handling by uwsgi of {{ $labels.app_name }}"
+
+#### Pishvaz Logic
+- name:  Pishvaz Logic
+  rules:
+  - alert: Smart Song Playing 
+    expr: 'pishvaz_smart_song_play_status == 0 '
+    for: 11m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "Pishvaz Play API error or file download error"
+            description: "Test play API & check cache servers"
+
+  - alert: Smart Tone Playing
+    expr: 'pishvaz_smart_tone_play_status == 0'
+    for: 11m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "Play API error or file download error"
+            description: "Test play API & check cache servers"
+
+  - alert: Normal Tone Playing
+    expr: 'pishvaz_normal_tone_play_status == 0'
+    for: 11m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "Can’t download file from irancell servers"
+            description: "Check play link - usually SSL issue"
+
+  - alert: Video Playing
+    expr: 'pishvaz_video_play_status == 0 '
+    for: 11m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "Play API error"
+            description: "Test play API"
+
+
+  - alert: Downloaded Song
+    expr: 'pishvaz_song_download_count == 0'
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "downloaded song count is 0, Song download issue" 
+            description: "Check download API & download feature in app"
+
+  - alert: USDP status
+    expr: 'pishvaz_usdp_connection_status == 0'
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "Can’t connect to USDP"
+            description: "Check mtn logs - test connection to USDP server using telnet"
+
+  - alert: Unexpired Package
+    expr: 'pishvaz_unexpired_package_count > 10'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Unexpired Package Count is {{$value}}. it is bigger than normal.Packages are not being expired correctly"
+            description: "Check expire task logs"
+
+  - alert: single purchase count
+    expr: 'pishvaz_successful_single_purchase_count < 250 and ON() hour() > 5 < 21'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Count of successfull single purchase is {{$value}}. it is less than normal. Users might have a problem with purchasing tones"
+            description: "Check “order” logs in USDP - test tone activation flow"
+
+
+  - alert: Successful Upload Tone count
+    expr: 'pishvaz_successful_tone_uploads_count < 1  and ON() hour() > 5 < 21'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Count of upload Tone is {{$value}}. it is less than normal. Maybe Something wrong with tone upload"
+            description: "Check tone upload logs - probably max-sp USDP error - check tone uploader script logs (tone_upload.log)"
+
+  - alert: Unsuccessful Upload Tone count
+    expr: 'pishvaz_unsuccessful_tone_uploads_count > 16'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Count of Unsuccessful upload Tone is {{$value}}. it is less than normal. Maybe Something wrong with tone upload"
+            description: "Check tone upload logs - probably max-sp USDP error - check tone uploader script logs (tone_upload.log)"
+
+  - alert: RBT sync
+    expr: ' time() - pishvaz_normal_rbt_sync_last_run_timestamp > 45000 '
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Normal RBTs are not up-to-date"
+            description: "Check normal RBT sync command logs"
+
+  - alert: Bank Payment
+    expr: 'pishvaz_successful_bank_payment_count  < 1 and ON() hour() > 5 < 21'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Count of Successful bank payment is {{$value}}. it is less than normal. IPG not functioning correctly"
+            description: "Test bank payment manually - check logs for errors"
+
+  - alert: Package purchase Count
+    expr: 'pishvaz_active_package_purchases_count  < 1500'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Count of Active Package is {{$value}}. it is less than normal"
+            description: "! Active Package problem"
+
+  - alert: Unconverted Video Count
+    expr: 'pishvaz_unconverted_video_count > 5'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Count of  Unconverted Video is {{$value}}. it is bigger than normal. Uploaded videos are not being picked up by converter"
+            description: "Check converter celery worker & RabbitMQ"
+
+  - alert: Tone Income amount
+    expr: 'pishvaz_daily_tone_income_total_amount/10 < 700000'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Amount of Daily Tone income is  {{$value}} toman. The total income calculated for tones is lower than expected "
+            description: "Check task was run correctly, Compare DailyToneIncome with purchase tables"
+
+  - alert: Renew Income 
+    expr: 'pishvaz_renew_total_income/10  < 12000000'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Amount of Daily Renew income is  {{$value}} toman. it is less than normal. There might be some issues in the renew task"
+            description: "Check renew records and their amount, check “reorder” USDP return codes"
+
+  - alert: Financial Revenue
+    expr: 'pishvaz_daily_financial_income_total_revenue/10  < 14000000'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Amount of Daily Financial Revenue income is  {{$value}} toman. Calculated revenue is less than the normal amount"
+            description: "Check if all records are created, check if there are 0 revenues submitted, check if calculated values match actual income from purchase tables"
+
+  - alert: CP Financial Income
+    expr: 'pishvaz_cp_financial_total_amount/10  < 100000'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Amount of Daily CP Financial income is  {{$value}} toman. The total income submitted for CPs (based on tone incomes and contracts) is lower than expected"
+            description: "Check task was run correctly, check contracts and tone incomes"
+
+  - alert: CP Financial Record Count
+    expr: 'pishvaz_cp_financial_record_count  < 50'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "CP Financial Record Count  is  {{$value}}. Number of transaction records submitted for CPs is lower than expected"
+            description: "Check task was run correctly, check contracts and tone incomes"
+
+  - alert: Daily Package Count
+    expr: 'pishvaz_cp_financial_record_count == 0 '
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+            summary: "CP Financial Record Count  is  0. Number of transaction records submitted for CPs is 0"
+            description: "Check task was run correctly, check contracts and tone incomes"
+
+  - alert: Daily Renew Count
+    expr: 'pishvaz_renew_successful_count   < 12000'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Daily renew  is {{$value}}. it is less than normal. There might be some issues in the renew task"
+            description: "Check renew records, check renew task logs, check “reorder” USDP return codes"
+
+  - alert: Daily Income Difference
+    expr: 'pishvaz_cp_income_calculation_diff/10 > 20000'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Daily Income Difference is {{$value}} toman. it is more than normal. There is a mismatch between expected tone incomes and actually submitted incomes"
+            description: "Check the two tables, check code logic "
+
+  - alert: Daily activation report
+    expr: 'pishvaz_daily_activation_report_record_count  < 5'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "pishvaz activation today is {{$value}}. it is less than normal. Report records are not generated as expected"
+            description: "Check task run"
+
+  - alert: Daily Expired single purchase 
+    expr: 'pishvaz_expired_single_purchase_count  < 100'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "single purchase that expired is {{$value}}. it is less than normal. Purchases are not being expired correctl"
+            description: "Check purchase records and renew task"
+
+#### Ritm Finance Logic
+- name:  Ritm Finance Logic
+  rules:
+  - alert: ritm total revenue
+    expr: 'finance_revenue_total_amount/10 < 250'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Ritm total Revenue is {{$value}} toman. The total amount of revenue is less than expected"
+            description: "Check which revenues are missing or have abnormal values. Investigate further from there"
+
+  - alert: ritm royalty pool
+    expr: 'finance_royalty_pool_total_amount/10 < 250'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Ritm royalty pool amount is {{$value}} toman. Royalty pool revenue is less than expected"
+            description: "Compare with royalty pool amounts from the Revenue table"
+
+  - alert: ritm media royalty income
+    expr: 'finance_royalty_pool_total_amount/10 < 250'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Ritm Media royalty income is {{$value}} toman. Royalty pool revenue is less than expected"
+            description: "Compare with royalty pool amounts from the Revenue table"
+
+  - alert: finance gathered media traffic Count
+    expr: 'finance_gathered_media_traffic_record_count  < 4500'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Ritm Gathered Media traffic Count is {{$value}}. Gathered traffic records count is less than expected"
+            description: "Check logs to investigate the reason"
+
+  - alert: finance media traffic Count
+    expr: 'finance_daily_media_traffic_record_count  < 4500'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Ritm Media traffic Count is {{$value}}. Aggregated traffic records count is less than expected"
+            description: "Check logs to investigate the reason"
+
+#### Media Logger Logic
+- name:  Media Logger Logic
+  rules:
+  - alert: Live session
+    expr: 'logger_live_sessions_count < 5000'
+    for: 1m
+    labels:
+      severity: "warning"
+    annotations:
+            summary: "Logger Live session is {{$value}}. it is less than normal. Users might have issues with playing media. Otherwise there might be a problem with the logger service "
+            description: "Test play API and monitor session status"
+
+
+#### MYSQL - Logic
+- name:  MYSQL - Logic
+  rules:
+  - alert: MysqlDown
+    expr: mysql_up == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: MySQL down (instance {{ $labels.instance }})
+      description: "MySQL instance is down on {{ $labels.instance }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  - alert: MysqlTooManyConnections(>80%)
+    expr: max_over_time(mysql_global_status_threads_connected[1m]) / mysql_global_variables_max_connections * 100 > 80
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: MySQL too many connections (> 80%) (instance {{ $labels.instance }})
+      description: "More than 80% of MySQL connections are in use on {{ $labels.instance }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  - alert: MysqlHighThreadsRunning
+    expr: max_over_time(mysql_global_status_threads_running[1m]) / mysql_global_variables_max_connections * 100 > 60
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: MySQL high threads running (instance {{ $labels.instance }})
+      description: "More than 60% of MySQL connections are in running state on {{ $labels.instance }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  - alert: MysqlSlaveIoThreadNotRunning
+    expr: ( mysql_slave_status_slave_io_running and ON (instance) mysql_slave_status_master_server_id > 0 ) == 0
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: MySQL Slave IO thread not running (instance {{ $labels.instance }})
+      description: "MySQL Slave IO thread not running on {{ $labels.instance }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  - alert: MysqlSlaveSqlThreadNotRunning
+    expr: ( mysql_slave_status_slave_sql_running and ON (instance) mysql_slave_status_master_server_id > 0) == 0
+    for: 0m
+    labels:
+      severity: critical
+    annotations:
+      summary: MySQL Slave SQL thread not running (instance {{ $labels.instance }})
+      description: "MySQL Slave SQL thread not running on {{ $labels.instance }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  - alert: MysqlSlaveReplicationLag
+    expr: ( (mysql_slave_status_seconds_behind_master - mysql_slave_status_sql_delay) and ON (instance) mysql_slave_status_master_server_id > 0 ) > 30
+    for: 3m
+    labels:
+      severity: critical
+    annotations:
+      summary: MySQL Slave replication lag (instance {{ $labels.instance }})
+      description: "MySQL replication lag on {{ $labels.instance }}\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  - alert: MysqlSlowQueries
+    expr: increase(mysql_global_status_slow_queries[1m]) > 0
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: MySQL slow queries (instance {{ $labels.instance }})
+      description: "MySQL server mysql has some new slow query.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  - alert: MysqlInnodbLogWaits
+    expr: rate(mysql_global_status_innodb_log_waits[15m]) > 10
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: MySQL InnoDB log waits (instance {{ $labels.instance }})
+      description: "MySQL innodb log writes stalling\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+### CLICKHOUSE - Logic
+- name:  CLICKHOUSE - Logic
+  rules:
+  - alert: ClickHouseServerDown
+    expr: ClickHouseAsyncMetrics_NetworkSendErrors_ens192 > 0
+    for: 3m
+    labels:
+      severity: critical
+    annotations:
+      summary: "clickhouse-server {{ $labels.hostname }} network possible down"
+      description: "clickhouse-server network possible down"
+
+  - alert: ClickHouse restart recently
+    expr: ClickHouseAsyncMetrics_Uptime > 1 < 180
+    for: 30s
+    labels:
+      severity: warning
+    annotations:
+      summary: "clickhouse-server {{ $labels.hostname }} restarted recently "
+      description: "clickhouse-server restarted recently"
+
+  - alert: ClickHouse DNS Error
+    expr: increase(ClickHouseProfileEvents_DNSError[5m]) > 0
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "clickhouse-server {{ $labels.hostname }} DNS error "
+      description: "Please check DNS settings in /etc/resolve.conf or remote-server in clickhouse config file"
+
+  - alert: ClickHouse Distributed Files to Insert
+    expr: ClickHouseMetrics_DistributedFilesToInsert > 50
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "clickhouse-server {{ $labels.hostname }} have Distributed Files to Insert > 50 "
+      description: "clickhouse-server have too much files which not insert to table engine"
+
+  - alert: ClickHouseDistributedConnectionExceptions
+    expr: increase(ClickHouseProfileEvents_DistributedConnectionFailTry[5m])  > 0
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "clickhouse-server {{ $labels.hostname }} Distributed connections fails occurred"
+      description: "Please, check communications between clickhouse server and host `remote_servers` in `/etc/clickhouse-server/`"
+
+  - alert: ClickHouseDistributedConnectionExceptions
+    expr: increase(ClickHouseProfileEvents_RejectedInserts[5m]) > 0
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "clickhouse-server {{ $labels.hostname }} Rejected INSERT queries occurred"
+      description: "clickhouse-server have INSERT queries that are rejected due to high number of active data parts for partition in a MergeTree, please decrease INSERT frequency MergeTreeArchitecture"
+
+  - alert: ClickHouseDelayedInsertThrottling
+    expr: increase(ClickHouseMetrics_DelayedInserts[5m]) > 0
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "clickhouse-server {{ $labels.hostname }} Delayed INSERT queries occurred "
+      description: "clickhouse-server have INSERT queries that are throttled due to high number of active data parts for partition in a MergeTree, please decrease INSERT frequency"
+
+  - alert: ClickHouseMaxPartCountForPartition
+    expr: ClickHouseAsyncMetrics_MaxPartCountForPartition > 100
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "clickhouse-server {{ $labels.hostname }} Max parts per partition > 100 "
+      description: "clickhouse-server have too many parts in one partition. Clickhouse MergeTree table engine split each INSERT query to partitions (PARTITION BY expression) and add one or more PARTS per INSERT inside each partition, after that background merge process run, and when you have too much unmerged parts inside partition, SELECT queries performance can significate degrade"
+
+
+  - alert: ClickHouseQueryPreempted
+    expr: ClickHouseMetrics_QueryPreempted > 0
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "clickhouse-server {{ $labels.hostname }} Preempted queries occurred "
+      description: "It mean queries that are stopped and waiting due to priority setting.try look to system.processes"
+
+  - alert: ClickHouseTooManyConnections
+    expr: ClickHouseMetrics_HTTPConnection + ClickHouseMetrics_TCPConnection+ClickHouseMetrics_MySQLConnection > 100
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "clickhouse-server {{ $labels.hostname }} Total connections > 100"
+      description: "clickhouse-server have many open connections."
+
+  - alert: ClickHouseStorageBufferErrorOnFlush
+    expr: increase(ClickHouseProfileEvents_StorageBufferFlush[5m]) > 0
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "clickhouse-server {{ $labels.hostname }} Increased StorageBufferErrorOnFlush"
+      description: "check disks free space and hardware failures."
+
+  - alert: ClickHouseStorageBufferErrorOnFlush
+    expr: increase(ClickHouseProfileEvents_WriteBufferFromFileDescriptorWriteFailed[5m])  > 0 or increase(ClickHouseProfileEvents_ReadBufferFromFileDescriptorReadFailed[5m]) > 0
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "clickhouse-server {{ $labels.hostname }} Increased ReadBufferFromFileDescriptorReadFailed or WriteBufferFromFileDescriptorWriteFailed"
+      description: "It mean the read (read/pread) or writes (write/pwrite) to a file descriptor. Does not include sockets.System can't read or write to some files."
+
+  - alert: ClickHouseSlowRead
+    expr: increase(ClickHouseProfileEvents_SlowRead[5m]) > 0 
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "clickhouse-server {{ $labels.hostname }} Increased SlowRead"
+      description: "clickhouse-server increase SlowRead in system.events table. It mean reads from a files that were slow."
+
+
+
+
+
+
+
+
+
+
+
+
+

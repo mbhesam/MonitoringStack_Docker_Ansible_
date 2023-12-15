@@ -1,0 +1,15 @@
+version: '2.1'
+
+services:
+
+  uwsgi_exporter:
+    image: timonwong/uwsgi-exporter
+    restart: always
+    ports:
+    - "9115:9115"
+
+
+
+  
+  
+

@@ -1,0 +1,21 @@
+version: '2.1'
+
+services:
+
+  # elasticsearch_exporter:
+  #   image: quay.io/prometheuscommunity/elasticsearch-exporter:latest
+  #   command:
+  #   - '--es.uri=${ELASTICSEARCH_URL}'
+  #   restart: always
+  #   ports:
+  #   - "9114:9114"
+
+  logstash_exporter:
+    image:  ghcr.io/kuskoman/logstash-exporter:master
+    restart: always
+    ports:
+    - "9198:9198"
+
+  
+  
+

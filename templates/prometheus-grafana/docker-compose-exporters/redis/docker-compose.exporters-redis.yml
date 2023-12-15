@@ -1,0 +1,19 @@
+version: '2.1'
+
+services:
+
+  redis_exporter:
+    image: oliver006/redis_exporter:alpine
+    command:
+      - '--redis.addr=${REDIS_ADDRESS}'
+      - '--redis.user=${REDIS_USER}'
+      - '--redis.password=${REDIS_PASSWORD}'
+    restart: always
+    ports:
+    - "9121:9121"
+
+
+
+  
+  
+

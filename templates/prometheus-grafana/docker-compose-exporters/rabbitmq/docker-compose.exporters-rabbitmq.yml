@@ -1,0 +1,15 @@
+version: '2.1'
+
+services:
+
+  rabbitmq_exporter:
+    image: kbudde/rabbitmq-exporter
+    restart: always
+    ports:
+    - "9419:9419"
+
+
+
+  
+  
+

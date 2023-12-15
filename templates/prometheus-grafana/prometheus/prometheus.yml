@@ -1,0 +1,557 @@
+global:
+  scrape_interval: 1m
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+       - "localhost:9093"
+
+rule_files:
+  - 'prometheus.rules.yml'
+scrape_configs:
+  - job_name: Cache Servers - resource
+    static_configs:
+            - targets: ['77.238.108.77:9100']
+              labels:
+                hostname: 'Asia Cache Server 77'
+            - targets: ['81.91.138.82:9100']
+              labels:
+                hostname: 'Datak Cache Server 82'
+            - targets: ['81.91.138.90:9100']
+              labels:
+                hostname: 'Datak Cache Server 90'
+            - targets: ['81.91.138.50:9100']
+              labels:
+                hostname: 'Datak Cache Server Half 50'
+            - targets: ['77.238.111.173:9100']
+              labels:
+                hostname: 'Asia Cache Server Half 173'
+            - targets: ['89.45.51.147:9100']
+              labels:
+                hostname: 'IGAP Cache Server 147'
+            - targets: ['89.45.51.149:9100']
+              labels:
+                hostname: 'Datak App Server 52'
+            - targets: ['81.91.138.52:9100']
+              labels:
+                hostname: 'Datak App Server 52'
+
+  - job_name: Elastic - resource
+    static_configs:
+            - targets: ['185.112.35.52:9100']
+              labels:
+                hostname: 'Asia Elastic A'
+            - targets: ['77.238.108.73:9100']
+              labels:
+                hostname: 'Asia Elastic D'
+            - targets: ['77.238.108.74:9100' ]
+              labels:
+                hostname: 'Asia Elastic C'
+            - targets: ['81.91.138.87:9100']
+              labels:
+                hostname: 'Datak Elastic B'
+            - targets: ['81.91.138.114:9100']
+              labels:
+                hostname: 'Datak Elastic A'
+
+  - job_name: App Servers - resource
+    static_configs:
+            - targets: ['77.238.108.67:9100']
+              labels:
+                hostname: 'Asia App Server 67'
+
+            - targets: ['77.238.108.69:9100']
+              labels:
+                hostname: 'Asia App Server 69'
+
+            - targets: ['77.238.108.68:9100']
+              labels:
+                hostname: 'Asia App Server 68'
+
+            - targets: ['77.238.111.168:9100']
+              labels:
+                hostname: 'Asia App Server 168'
+
+            - targets: ['77.238.111.169:9100']
+              labels:
+                hostname: 'Asia App Server 169'
+
+            - targets: ['81.91.138.52:9100']
+              labels:
+                hostname: 'Datak App 52'
+
+            - targets: ['81.91.138.53:9100']
+              labels:
+                hostname: 'Datak App 53'
+
+            - targets: ['172.16.9.24:9100']
+              labels:
+                hostname: 'Finance/Fingerprint'
+
+            - targets: ['172.16.9.22:9100']
+              labels:
+                hostname: 'Stream Converter'
+
+            - targets: ['77.238.108.70:9100']
+              labels:
+                hostname: 'Asia Web Server 70'
+
+            - targets: ['188.213.67.84:9100']
+              labels:
+                hostname: 'Smart App'
+
+            - targets: ['77.238.111.171:9100']
+              labels:
+                hostname: 'Bami APP'
+
+  - job_name: File server - resource
+    static_configs:
+            - targets: ['77.238.108.78:9100']
+              labels:
+                hostname: 'fileserver-afs'
+
+  - job_name: MYSQL - resource
+    static_configs:
+            - targets: ['77.238.108.71:9100']
+              labels:
+                hostname: 'mysql Asia'
+
+            - targets: ['81.91.138.123:9100']
+              labels:
+                hostname: 'mysql Datak'
+
+  - job_name: ClickHouse - resource
+    static_configs:
+            - targets: ['172.16.9.76:9100']
+              labels:
+                hostname: 'ClickHouse Asia'
+
+  - job_name: RabbitMQ - resource
+    static_configs:
+            - targets: ['172.16.9.23:9100' ]
+              labels:
+                hostname: 'RabbitMQ Utility 75'
+
+  - job_name: Redis - data
+    static_configs:
+            - targets: ['77.238.108.69:9121' ]
+              labels:
+                hostname: 'APP Server 69'
+
+            - targets: ['77.238.108.68:9121' ]
+              labels:
+                hostname: 'APP Server 68'
+
+  - job_name: Elastic - elasticsearch  data
+    static_configs:
+            - targets: ['185.112.35.52:9114']
+              labels:
+                hostname: 'Asia Elastic A'
+            - targets: ['77.238.108.73:9114']
+              labels:
+                hostname: 'Asia Elastic D'
+            - targets: ['77.238.108.74:9114' ]
+              labels:
+                hostname: 'Asia Elastic C'
+            - targets: ['81.91.138.87:9114']
+              labels:
+                hostname: 'Datak Elastic B'
+            - targets: ['81.91.138.114:9114']
+              labels:
+                hostname: 'Datak Elastic A'
+
+  - job_name: Logstash - logstash data
+    static_configs:
+            - targets: ['185.112.35.52:9304']
+              labels:
+                hostname: 'Asia Elastic A'
+            - targets: ['77.238.108.73:9304']
+              labels:
+                hostname: 'Asia Elastic D'
+            - targets: ['77.238.108.74:9304' ]
+              labels:
+                hostname: 'Asia Elastic C'
+            - targets: ['81.91.138.87:9304']
+              labels:
+                hostname: 'Datak Elastic B'
+            - targets: ['81.91.138.114:9304']
+              labels:
+                hostname: 'Datak Elastic A'
+
+  - job_name: filebeat - filebeats data
+    static_configs:
+#            - targets: ['81.91.138.52:9113']
+#              labels:
+#                hostname: 'Datak App'
+            - targets: ['81.91.138.82:9479']
+              labels:
+                hostname: 'Datak Cache Server 82'
+
+            - targets: ['81.91.138.90:9479']
+              labels:
+                hostname: 'Datak Cache Server 90'
+
+            - targets: ['81.91.138.50:9479']
+              labels:
+                hostname: 'Datak Cache Server Half 50'
+
+            - targets: ['77.238.111.173:9479']
+              labels:
+                hostname: 'Datak Cache Server Half 50'
+
+            - targets: ['89.45.51.147:9479']
+              labels:
+                hostname: 'IGAP Cache Server 147'
+
+            - targets: ['89.45.51.149:9479']
+              labels:
+                hostname: 'IGAP Cache Server 149'
+
+            - targets: ['188.213.67.84:9479']
+              labels:
+                hostname: 'Smart App'
+
+            - targets: ['77.238.108.77:9479']
+              labels:
+                hostname: 'Asia Cache Server 77'
+
+  - job_name: RabbitMQ - data
+    static_configs:
+            - targets: ['172.16.9.23:15692' ]
+              labels:
+                namespace: 'RabbitMQ'
+                hostname: 'RabbitMQ Utility 70'
+
+  - job_name: ClickHouse
+    static_configs:
+            - targets: ['172.16.9.76:9363' ]
+              labels:
+                hostname: 'Asia ClickHouse'
+
+  - job_name: MySQL - Logic
+    static_configs:
+            - targets: ['77.238.108.71:9104']
+              labels:
+                hostname: 'mysql asia'
+
+  - job_name: Nginx State
+    static_configs:
+            - targets: ['77.238.108.69:9113']
+              labels:
+                hostname: 'Asia App Server 69'
+
+            - targets: ['77.238.108.67:9113']
+              labels:
+                hostname: 'Asia App Server 67'
+
+            - targets: ['77.238.108.68:9113']
+              labels:
+                hostname: 'Asia App Server 68'
+
+            - targets: ['77.238.111.168:9113']
+              labels:
+                hostname: 'Asia App Server 168'
+
+            - targets: ['77.238.111.169:9113']
+              labels:
+                hostname: 'Asia App Server 169'
+
+            - targets: ['77.238.108.70:9113']
+              labels:
+                hostname: 'Asia Web Server 70'
+
+            - targets: ['172.16.9.24:9113']
+              labels:
+                hostname: 'Finance/Fingerprint'
+
+            - targets: ['81.91.138.82:9113']
+              labels:
+                hostname: 'Datak Cache Server 82'
+
+            - targets: ['81.91.138.90:9113']
+              labels:
+                hostname: 'Datak Cache Server 90'
+
+            - targets: ['81.91.138.50:9113']
+              labels:
+                hostname: 'Datak Cache Server Half 50'
+
+            - targets: ['77.238.111.173:9113']
+              labels:
+                hostname: 'Asia Cache Server Half 173'
+
+            - targets: ['89.45.51.147:9113']
+              labels:
+                hostname: 'IGAP Cache Server 147'
+
+            - targets: ['89.45.51.149:9113']
+              labels:
+                hostname: 'IGAP Cache Server 149'
+
+            - targets: ['188.213.67.84:9113']
+              labels:
+                hostname: 'Smart App'
+
+            - targets: ['77.238.108.77:9113']
+              labels:
+                hostname: 'Asia Cache Server 77'
+
+            - targets: ['77.238.111.171:9113']
+              labels:
+                hostname: 'Bami APP'
+
+            - targets: ['81.91.138.52:9113']
+              labels:
+                hostname: 'Datak App Server 52'
+
+            - targets: ['81.91.138.53:9113']
+              labels:
+                hostname: 'Datak App 53'
+
+  - job_name: Pishvaz-Repeated
+    metrics_path: /reports/api/v1/prometheus-metrics/recurrent/
+    static_configs:
+            - targets: ['api.my-pishvaz.com']
+              labels:
+                hostname: 'App Server 68'
+                app_group: 'reapeated pishvaz'
+
+  - job_name: Pishvaz-Daily
+    metrics_path: /reports/api/v1/prometheus-metrics/daily/
+    static_configs:
+            - targets: ['api.my-pishvaz.com']
+              labels:
+                hostname: 'App Server 68'
+                app_group: 'daily pishvaz'
+
+  - job_name: Ritm-Finance
+    scheme: https
+    metrics_path: /monitoring/prometheus-metrics/daily/
+    static_configs:
+            - targets: ['fnc.yaramobile.com']
+              labels:
+                hostname: 'Finance/Fingerprint'
+                app_group: 'daily finance'
+
+  - job_name: Hashem Bot 
+    metrics_path: /metrics
+    static_configs:
+            - targets: ['172.16.9.24:8080']
+              labels:
+                hostname: 'Finger Print'
+                app_group: 'Hashem Bot'
+
+  - job_name: Media Logger
+    metrics_path: /api/v1/prometheus/metrics
+    static_configs:
+            - targets: ['logger.my-pishvaz.com']
+              labels:
+                hostname: 'App Server 68'
+                app_group: 'Hourly Media Logger'
+
+  
+  - job_name: Nginx_Logs data
+    metrics_path: /metrics
+    scrape_interval: 5m  # Set the scrape interval for this metric
+    static_configs:
+            - targets: ['77.238.108.69:4040']
+              labels:
+                hostname: 'Asia App Server 69'
+
+            - targets: ['77.238.108.67:4040']
+              labels:
+                hostname: 'Asia App Server 67'
+
+            - targets: ['77.238.108.68:4040']
+              labels:
+                hostname: 'Asia App server 68'
+
+            - targets: ['77.238.111.168:4040']
+              labels:
+                hostname: 'Asia App server 168'
+
+            - targets: ['77.238.111.169:4040']
+              labels:
+                hostname: 'Asia App server 169'
+
+            - targets: ['77.238.108.77:4040']
+              labels:
+                hostname: 'Asia Cache Server 77'
+
+            - targets: ['172.16.9.24:4040']
+              labels:
+                hostname: 'Finance/Fingerprint'
+
+            - targets: ['81.91.138.82:4040']
+              labels:
+                hostname: 'Datak Cache Server 82'
+
+            - targets: ['81.91.138.90:4040']
+              labels:
+                hostname: 'Datak Cache Server 90'
+
+            - targets: ['81.91.138.50:4040']
+              labels:
+                hostname: 'Datak Cache Server Half 50'
+
+            - targets: ['77.238.111.173:4040']
+              labels:
+                hostname: 'Asia Cache Server Half 173'
+
+            - targets: ['89.45.51.147:4040']
+              labels:
+                hostname: 'IGAP Cache Server 147'
+
+            - targets: ['89.45.51.149:4040']
+              labels:
+                hostname: 'IGAP Cache Server 149'
+
+            - targets: ['77.238.108.70:4040']
+              labels:
+                hostname: 'Asia Web Server 70'
+
+            - targets: ['77.238.111.171:4040' ]
+              labels:
+                hostname: 'Bami APP'
+
+            - targets: ['81.91.138.52:4040']
+              labels:
+                hostname: 'Datak App Server 52'
+
+            - targets: ['81.91.138.53:4040']
+              labels:
+                hostname: 'Datak App 53'
+
+  - job_name: uWSGI - data
+    metrics_path: /probe
+#    scheme: http
+    static_configs:
+            - targets: ['http://77.238.108.69:1919']
+              labels:
+                hostname: 'Asia App Server 69'
+                app_name: 'Media Provider 2'
+
+            - targets: ['http://77.238.108.69:1818']
+              labels:
+                hostname: 'Asia App Server 69'
+                app_name: 'ISP Detector 2'
+
+            - targets: ['http://77.238.108.67:1919']
+              labels:
+                hostname: 'Asia App Server 67'
+                app_name: 'Media Provider 1'
+
+            - targets: ['http://77.238.108.67:1818']
+              labels:
+                hostname: 'Asia App Server 67'
+                app_name: 'ISP Detector 1'
+
+            - targets: ['http://77.238.108.68:8002']
+              labels:
+                hostname: 'Asia App Server 68'
+                app_name: 'Asia Pishvaz 68'
+
+            - targets: ['http://77.238.108.68:1818']
+              labels:
+                hostname: 'Asia App Server 68'
+                app_name: 'Pishvaz ISP Detector 68'
+
+            - targets: ['http://77.238.111.168:8002']
+              labels:
+                hostname: 'Asia App Server 168'
+                app_name: 'Asia Pishvaz 168'
+
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 127.0.0.1:9117
+
+
+  - job_name: 'blackbox-https'
+    scrape_timeout: 2m
+    scrape_interval: 3m
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+     - targets:
+        - https://play.ritm.center/music
+        - https://cdn1.my-pishvaz.com/widgets/premium-media.js
+        - https://plugin.my-pishvaz.com/wp/download/premium_media/premium-media.json
+        - https://plugin.my-pishvaz.com/wp/download/premium_media/premium-media.zip
+        - https://my-pishvaz.com/rbt
+       labels:
+         hostname: 'Monitor Server'
+         app_group: 'frontend'
+
+     - targets:
+        - https://api-radio.ritm.center/core/v1/providers/musicfa/radio-stations/happy/currently-playing/
+
+        - https://radio-service.ritm.center/core/v1/providers/musicfa/radio-stations/happy/currently-playing/
+
+        - https://isp-detector.yaramobile.com/api/v1/ip-info/
+
+        - https://plugin.my-pishvaz.com/admin/login/?next=/admin/
+
+        - https://uploader.vasapi.click/privateadminpanel/login/?next=/privateadminpanel/
+
+        - https://api.my-pishvaz.com/api/config/
+
+        - https://pishvaz.vasapi.click/api/config/
+
+        - https://fnc.yaramobile.com/admin/login/?next=/admin/
+
+        - https://music-remote.my-pishvaz.com
+
+        - https://media-vip.my-pishvaz.com
+
+        - https://media.my-pishvaz.com/cache/c1/d7/c1d73de92f5d2e27cbec382bcef7b2f5.jpg
+
+        - https://otp-msg.vasapi.click/api/v1/health-check/
+
+        - https://msg.vasapi.click/core/api/v1/health-check/
+
+        - https://logger.my-pishvaz.com/api/v1/core/health-check
+
+        - https://music1.igap.net
+ 
+        - https://radio-music.igap.net/radio/ritm/happy
+       labels:
+         hostname: 'Monitor Server'
+         app_group: 'backend'
+
+
+    relabel_configs:
+     - source_labels: [__address__]
+       target_label: __param_target
+     - source_labels: [__param_target]
+       target_label: instance
+     - target_label: __address__
+       replacement: 127.0.0.1:9115
+
+#  - job_name: 'blackbox-https-post'
+#    scrape_timeout: 1m
+#    scrape_interval: 1m
+#    metrics_path: /probe
+#    params:
+#      module: [http_post_2xx]
+#    static_configs:
+#     - targets:
+#        -  http://logger.my-pishvaz.com/api/v1/core/sessions
+#
+#       labels:
+#         hostname: 'Monitor Server'
+#         app_group: 'backend-post'
+#
+#
+#    relabel_configs:
+#     - source_labels: [__address__]
+#       target_label: __param_target
+#     - source_labels: [__param_target]
+#       target_label: instance
+#     - target_label: __address__
+#       replacement: 127.0.0.1:9115
+
