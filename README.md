@@ -1,4 +1,4 @@
-# monitoring_Docker_Ansible_
+# Monitoring_Docker_Ansible_
 
 # Ansible Prometheus Grafana Monitoring Stack Installation
 This Ansible repository provides code to install the Prometheus Grafana monitoring stack on different operating systems including CentOS, Debian, and Ubuntu. The installation process involves the following steps:
